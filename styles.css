@@ -133,3 +133,29 @@ h1 {
     width: 50%;
     text-align: center;
 }
+
+
+
+
+#auth-container {
+  margin: 1rem 0;
+  text-align: center;
+}
+#password-input {
+  padding: 0.5rem;
+  font-size: 1rem;
+}
+#login-btn {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+#login-btn:hover {
+  background-color: #0056b3;
+  color: white;
+}
+#error-message {
+  color: red;
+  margin-top: 0.5rem;
+  min-height: 1.2em;
+}
