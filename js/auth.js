@@ -15,6 +15,11 @@ document.addEventListener("DOMContentLoaded", () => {
     script.src = '/js/encrypted/index.js';
     script.onload = () => {
       console.log('Verschlüsselte Inhalte geladen:', window.protectedPages?.length || 0);
+
+      // Hier hinzufügen:
+      if (sessionStorage.getItem("auth") === "true") {
+        displayProtectedContent();
+      }
     };
     document.head.appendChild(script);
   }
