@@ -67,6 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
             u8_array[offset++] = (word >> (24 - j * 8)) & 0xff;
           }
         }
+        console.log('Decrypted bytes length:', u8_array.length);
         return u8_array;
       }
     } catch (e) {
@@ -109,25 +110,32 @@ document.addEventListener("DOMContentLoaded", () => {
     lockedContent.innerHTML = contentHtml;
   }
 
-  // Neue Funktion: Bilder, GIFs, Videos, Audio automatisch entschlüsseln
   async function displayProtectedMedia() {
     const password = sessionStorage.getItem('auth-password');
     if (!window.encryptedContent) return;
 
-    // Suche alle Medien mit data-protected
     const mediaElements = document.querySelectorAll('img[data-protected], video[data-protected], audio[data-protected]');
     for (const el of mediaElements) {
       const fileKey = el.getAttribute('data-protected');
       const encrypted = window.encryptedContent[fileKey];
+      console.log('Loading media:', fileKey, 'Found:', !!encrypted);
       if (!encrypted) continue;
 
       const bytes = tryDecryptBinary(encrypted, password);
       if (!bytes) continue;
 
       let type;
-      if (el.tagName.toLowerCase() === 'img') type = 'image/png'; // evtl. nach Dateiendung anpassen
-      if (el.tagName.toLowerCase() === 'video') type = 'video/mp4';
-      if (el.tagName.toLowerCase() === 'audio') type = 'audio/mp3';
+      const ext = fileKey.split('.').pop().toLowerCase();
+
+      if (el.tagName.toLowerCase() === 'img') {
+        if (ext === 'png') type = 'image/png';
+        else if (ext === 'jpg' || ext === 'jpeg') type = 'image/jpeg';
+        else if (ext === 'gif') type = 'image/gif';
+      } else if (el.tagName.toLowerCase() === 'video') {
+        type = 'video/mp4';
+      } else if (el.tagName.toLowerCase() === 'audio') {
+        type = 'audio/mp3';
+      }
 
       const blob = new Blob([bytes], { type });
       const url = URL.createObjectURL(blob);
