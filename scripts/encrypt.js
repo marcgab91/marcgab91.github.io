@@ -16,18 +16,33 @@ if (!fs.existsSync(outputDir)) {
   fs.mkdirSync(outputDir, { recursive: true });
 }
 
-// Verschlüsseln einer Datei
+// Verschlüsseln einer Textdatei (HTML/MD)
 function encryptFile(filePath, relativePath) {
   const content = fs.readFileSync(filePath, 'utf8');
   const encrypted = CryptoJS.AES.encrypt(content, password).toString();
 
   const jsContent = `
-// Automatisch generiert - nicht bearbeiten!
 window.encryptedContent = window.encryptedContent || {};
 window.encryptedContent['${relativePath}'] = '${encrypted}';
   `.trim();
 
   const outputFile = path.join(outputDir, relativePath.replace(/[\/\\]/g, '_').replace(/\.[^.]*$/, '.js'));
+  fs.writeFileSync(outputFile, jsContent);
+  console.log(`Verschlüsselt: ${relativePath} -> ${outputFile}`);
+}
+
+// Verschlüsseln einer Binärdatei (Bilder, Audio, Video)
+function encryptBinaryFile(filePath, relativePath) {
+  const content = fs.readFileSync(filePath);
+  const wordArray = CryptoJS.lib.WordArray.create(content);
+  const encrypted = CryptoJS.AES.encrypt(wordArray, password).toString();
+
+  const jsContent = `
+window.encryptedContent = window.encryptedContent || {};
+window.encryptedContent['${relativePath}'] = '${encrypted}';
+  `.trim();
+
+  const outputFile = path.join(outputDir, relativePath.replace(/[\/\\]/g, '_') + '.js');
   fs.writeFileSync(outputFile, jsContent);
   console.log(`Verschlüsselt: ${relativePath} -> ${outputFile}`);
 }
@@ -38,11 +53,18 @@ function processDirectory(dir, baseDir = dir) {
   files.forEach(file => {
     const fullPath = path.join(dir, file);
     const stat = fs.statSync(fullPath);
+
     if (stat.isDirectory()) {
       processDirectory(fullPath, baseDir);
-    } else if (file.endsWith('.html') || file.endsWith('.md')) {
+    } else {
       const relativePath = path.relative(baseDir, fullPath);
-      encryptFile(fullPath, relativePath);
+      const ext = path.extname(file).toLowerCase();
+
+      if (['.html', '.md'].includes(ext)) {
+        encryptFile(fullPath, relativePath);
+      } else if (['.png', '.jpg', '.jpeg', '.gif', '.mp4', '.m4a', '.webm'].includes(ext)) {
+        encryptBinaryFile(fullPath, relativePath);
+      }
     }
   });
 }
