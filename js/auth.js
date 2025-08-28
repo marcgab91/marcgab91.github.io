@@ -5,18 +5,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const lockedContent = document.querySelector(".locked-content");
   const errorDiv = document.querySelector(".error-message");
 
-  sessionStorage.removeItem("auth");
-  sessionStorage.removeItem("auth-password");
-
-  // Lade verschlüsselte Inhalte
   loadEncryptedContent();
 
   function loadEncryptedContent() {
-    // Lade Index der geschützten Seiten
     const script = document.createElement('script');
     script.src = '/js/encrypted/index.js';
     script.onload = () => {
       console.log('Verschlüsselte Inhalte geladen:', window.protectedPages?.length || 0);
+      const storedPass = sessionStorage.getItem("auth-password");
+      if (sessionStorage.getItem("auth") === "true" && storedPass) {
+        onLoginSuccess();
+      }
     };
     document.head.appendChild(script);
   }
@@ -88,7 +87,12 @@ document.addEventListener("DOMContentLoaded", () => {
     lockedContent.innerHTML = contentHtml;
   }
 
-  showLogin();
+  const storedPass = sessionStorage.getItem("auth-password");
+  if (sessionStorage.getItem("auth") === "true" && storedPass) {
+    onLoginSuccess();
+  } else {
+    showLogin();
+  }
 
   function attemptLogin() {
     const enteredPass = passwordInput.value.trim();
