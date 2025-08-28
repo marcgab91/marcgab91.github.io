@@ -53,17 +53,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return null;
   }
 
-  // Neue Funktion: Binärdateien (Bilder, Audio, Video) entschlüsseln
-  function decryptBinary(encryptedContent, password) {
-    const decrypted = CryptoJS.AES.decrypt(encryptedContent, password);
-    const typedArray = new Uint8Array(decrypted.sigBytes);
-    for (let i = 0; i < decrypted.sigBytes; i++) {
-      typedArray[i] = (decrypted.words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
-    }
-    const blob = new Blob([typedArray]);
-    return URL.createObjectURL(blob);
-  }
-
   async function displayProtectedContent() {
     if (!window.protectedPages || window.protectedPages.length === 0) {
       lockedContent.innerHTML = '<p>Keine geschützten Inhalte verfügbar.</p>';
@@ -73,7 +62,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const password = sessionStorage.getItem('auth-password');
     let contentHtml = '';
 
-    // HTML/MD Inhalte
     for (const page of window.protectedPages) {
       try {
         const response = await fetch(`/js/encrypted/${page.encrypted.replace(/\.[^.]*$/, '.js')}`);
@@ -97,29 +85,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     lockedContent.innerHTML = contentHtml;
-
-    // Binärmedien (Bilder, Audio, Video)
-    for (const key in window.encryptedContent) {
-      if (/\.(png|jpg|jpeg|gif|mp4|m4a|webm)$/i.test(key)) {
-        const blobUrl = decryptBinary(window.encryptedContent[key], password);
-
-        if (/\.(png|jpg|jpeg|gif)$/i.test(key)) {
-          const img = document.createElement('img');
-          img.src = blobUrl;
-          lockedContent.appendChild(img);
-        } else if (/\.(mp4)$/i.test(key)) {
-          const video = document.createElement('video');
-          video.src = blobUrl;
-          video.controls = true;
-          lockedContent.appendChild(video);
-        } else if (/\.(m4a|webm)$/i.test(key)) {
-          const audio = document.createElement('audio');
-          audio.src = blobUrl;
-          audio.controls = true;
-          lockedContent.appendChild(audio);
-        }
-      }
-    }
 
     document.querySelectorAll("[data-load-html]").forEach(el => {
       const file = el.getAttribute("data-load-html");
