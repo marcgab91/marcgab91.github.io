@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
     lockedContent.style.display = "block";
     
     displayProtectedContent();
-    displayProtectedImages();
+    displayProtectedMedia();
   }
 
   function showLogin() {
@@ -58,13 +58,16 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       if (typeof CryptoJS !== 'undefined') {
         const decrypted = CryptoJS.AES.decrypt(encryptedContent, password);
-        const typedArray = Uint8Array.from(decrypted.words.map(w => [
-          (w >> 24) & 0xff,
-          (w >> 16) & 0xff,
-          (w >> 8) & 0xff,
-          w & 0xff
-        ]).flat());
-        return typedArray;
+        const len = decrypted.sigBytes;
+        const u8_array = new Uint8Array(len);
+        let offset = 0;
+        for (let i = 0; i < decrypted.words.length; i++) {
+          let word = decrypted.words[i];
+          for (let j = 0; j < 4 && offset < len; j++) {
+            u8_array[offset++] = (word >> (24 - j * 8)) & 0xff;
+          }
+        }
+        return u8_array;
       }
     } catch (e) {
       console.error('Fehler beim Entschlüsseln von Binärdateien:', e);
@@ -106,24 +109,34 @@ document.addEventListener("DOMContentLoaded", () => {
     lockedContent.innerHTML = contentHtml;
   }
 
-  // Neue Funktion: Alle verschlüsselten Bilder dynamisch laden
-  async function displayProtectedImages() {
+  // Neue Funktion: Bilder, GIFs, Videos, Audio automatisch entschlüsseln
+  async function displayProtectedMedia() {
     const password = sessionStorage.getItem('auth-password');
     if (!window.encryptedContent) return;
 
-    const imgElements = document.querySelectorAll('img[data-protected]');
-    for (const img of imgElements) {
-      const fileKey = img.getAttribute('data-protected'); // z.B. "content/athletes/meinBild.png"
+    // Suche alle Medien mit data-protected
+    const mediaElements = document.querySelectorAll('img[data-protected], video[data-protected], audio[data-protected]');
+    for (const el of mediaElements) {
+      const fileKey = el.getAttribute('data-protected');
       const encrypted = window.encryptedContent[fileKey];
-      if (encrypted) {
-        const bytes = tryDecryptBinary(encrypted, password);
-        if (bytes) {
-          const blob = new Blob([bytes], { type: 'image/png' });
-          const url = URL.createObjectURL(blob);
-          img.src = url;
-        } else {
-          console.error('Fehler beim Entschlüsseln von Bild:', fileKey);
-        }
+      if (!encrypted) continue;
+
+      const bytes = tryDecryptBinary(encrypted, password);
+      if (!bytes) continue;
+
+      let type;
+      if (el.tagName.toLowerCase() === 'img') type = 'image/png'; // evtl. nach Dateiendung anpassen
+      if (el.tagName.toLowerCase() === 'video') type = 'video/mp4';
+      if (el.tagName.toLowerCase() === 'audio') type = 'audio/mp3';
+
+      const blob = new Blob([bytes], { type });
+      const url = URL.createObjectURL(blob);
+
+      if (el.tagName.toLowerCase() === 'video' || el.tagName.toLowerCase() === 'audio') {
+        el.src = url;
+        el.load();
+      } else {
+        el.src = url;
       }
     }
   }
