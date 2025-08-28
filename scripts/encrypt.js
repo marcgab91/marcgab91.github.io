@@ -18,14 +18,8 @@ if (!fs.existsSync(outputDir)) {
 
 // Verschlüsseln einer Datei
 function encryptFile(filePath, relativePath) {
-  // Datei als Buffer lesen (binär-kompatibel)
-  const buffer = fs.readFileSync(filePath);
-  
-  // Buffer in WordArray konvertieren
-  const wordArray = CryptoJS.lib.WordArray.create(buffer);
-  
-  // Verschlüsseln und Base64 erzeugen
-  const encrypted = CryptoJS.AES.encrypt(wordArray, password).toString();
+  const content = fs.readFileSync(filePath, 'utf8');
+  const encrypted = CryptoJS.AES.encrypt(content, password).toString();
 
   const jsContent = `
 // Automatisch generiert - nicht bearbeiten!
@@ -33,10 +27,7 @@ window.encryptedContent = window.encryptedContent || {};
 window.encryptedContent['${relativePath}'] = '${encrypted}';
   `.trim();
 
-  const outputFile = path.join(
-    outputDir,
-    relativePath.replace(/[\/\\]/g, '_').replace(/\.[^.]*$/, '.js')
-  );
+  const outputFile = path.join(outputDir, relativePath.replace(/[\/\\]/g, '_').replace(/\.[^.]*$/, '.js'));
   fs.writeFileSync(outputFile, jsContent);
   console.log(`Verschlüsselt: ${relativePath} -> ${outputFile}`);
 }
@@ -49,7 +40,7 @@ function processDirectory(dir, baseDir = dir) {
     const stat = fs.statSync(fullPath);
     if (stat.isDirectory()) {
       processDirectory(fullPath, baseDir);
-    } else {
+    } else if (file.endsWith('.html') || file.endsWith('.md')) {
       const relativePath = path.relative(baseDir, fullPath);
       encryptFile(fullPath, relativePath);
     }
