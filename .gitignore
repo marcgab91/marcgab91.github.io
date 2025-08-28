@@ -1,9 +1,8 @@
 .DS_Store
+notes.txt
+package-lock.json
+package.json
+node_modules/
 
-todo.txt
-
-# Verschlüsselte Inhalte sollen ignoriert werden
 protected/
-
-# verschlüsselte Versionen erlauben
 !js/encrypted/
