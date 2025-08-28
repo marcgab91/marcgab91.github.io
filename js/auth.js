@@ -56,20 +56,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function tryDecryptBinary(encryptedContent, password) {
     try {
-      if (typeof CryptoJS !== 'undefined') {
-        const decrypted = CryptoJS.AES.decrypt(encryptedContent, password);
-        const len = decrypted.sigBytes;
-        const u8_array = new Uint8Array(len);
-        let offset = 0;
-        for (let i = 0; i < decrypted.words.length; i++) {
-          let word = decrypted.words[i];
-          for (let j = 0; j < 4 && offset < len; j++) {
-            u8_array[offset++] = (word >> (24 - j * 8)) & 0xff;
-          }
+      const decrypted = CryptoJS.AES.decrypt(encryptedContent, password);
+      const len = decrypted.sigBytes;
+      const u8_array = new Uint8Array(len);
+      let offset = 0;
+      for (let i = 0; i < decrypted.words.length; i++) {
+        let word = decrypted.words[i];
+        for (let j = 0; j < 4 && offset < len; j++) {
+          u8_array[offset++] = (word >> (24 - j * 8)) & 0xff;
         }
-        console.log('Decrypted bytes length:', u8_array.length);
-        return u8_array;
       }
+      console.log('Decrypted bytes length:', u8_array.length);
+      return u8_array;
     } catch (e) {
       console.error('Fehler beim Entschlüsseln von Binärdateien:', e);
     }
