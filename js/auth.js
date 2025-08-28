@@ -85,6 +85,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     lockedContent.innerHTML = contentHtml;
+
+    document.querySelectorAll("[data-load-html]").forEach(el => {
+      const file = el.getAttribute("data-load-html");
+      loadHTML(file, el.id);
+    });
   }
 
   const storedPass = sessionStorage.getItem("auth-password");
