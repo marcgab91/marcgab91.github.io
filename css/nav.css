@@ -1,0 +1,152 @@
+/* Navbar */
+nav {
+    display: flex;
+    justify-content: space-between;
+    background-color: #ffffff;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border-bottom: 1px solid #333333;
+    position: relative;
+    z-index: 1000;
+}
+
+.nav-list {
+    display: none;
+    flex-direction: column-reverse;
+    flex-shrink: 0;
+    position: absolute;
+    top: 100%;
+    width: 40%;
+    background-color: #ffffff;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    padding: 0;
+    margin: 0;
+    right: 0px;
+    z-index: 1100;
+}
+@media (min-width: 768px) {
+    .nav-list {
+        display: block;
+        flex-direction: row;
+        position: static;
+        width: auto;
+        box-shadow: none;
+        padding-left: 10px;
+        padding-right: 50px;
+    }
+}
+
+.nav-list.show {
+    display: flex;
+}
+
+/* Hamburger menu styles */
+.hamburger-menu {
+    font-size: 30px;
+    padding: 10px 15px;
+    cursor: pointer;
+}
+@media (min-width: 768px) {
+    .hamburger-menu {
+        display: none;
+    }
+}
+
+nav ul {
+    list-style-type: none;
+}
+
+/* Navbar website name */
+.website-name {
+    flex-shrink: 0;
+    padding: 0px 15px;
+    margin-top: 3px;
+    display: flex;
+    align-items: center;
+    color: #000000;
+    text-decoration: none;
+    font-family: "Merriweather", sans-serif;
+    font-size: 26px;
+    font-weight: bold;
+}
+@media (min-width: 768px) {
+    .website-name{
+        padding: 0px 0px;
+        padding-left: 50px;
+        padding-right: 10px;
+    }
+}
+
+.website-icon {
+    margin-right: 10px;
+    width: 40px;
+    height: 40px;
+}
+
+/* Navbar buttons */
+nav ul li.nav-button {
+    float: right;
+}
+
+nav ul li.nav-button .nav-link {
+    display: block;
+    padding: 23px 24px;
+    text-decoration: none;
+    color: #000000;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    position: relative;
+}
+
+nav ul li.nav-button .nav-link:hover {
+    background-color: #f5f5f5;
+}
+
+
+/* Active top level nav link */
+nav ul li.nav-button .nav-link.nav-first.active {
+    text-decoration: underline;
+}
+@media (min-width: 768px) {
+    nav ul li.nav-button .nav-link.nav-first.active {
+        text-decoration: none;
+    }
+
+    nav ul li.nav-button .nav-link.nav-first.active::after{
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: -1px;
+        width: 100%;
+        height: 4px;
+        background-color: #333333;
+    }
+}
+
+
+/* Active second level nav link */
+nav ul li.nav-button .nav-link.nav-second.active {
+    text-decoration: underline;
+}
+
+/* Whole Dropdown menu (hidden by default) */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #ffffff;
+    z-index: 1100;
+}
+
+/* Dropdown hover (only enabled for wide screens) */
+@media (min-width: 768px) {
+    .dropdown-button:hover .dropdown-content {
+        display: block;
+    }
+}
+
+/* Individual Dropdown links */
+nav ul li.nav-button .dropdown-content .nav-link {
+    padding: 8px 24px;
+}

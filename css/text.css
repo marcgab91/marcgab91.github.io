@@ -1,0 +1,48 @@
+body {
+    font-family: "Merriweather", serif;
+}
+
+button {
+    font-family: "Merriweather", serif;
+}
+
+/* normal text that makes up the main body */
+.normal-text {
+    line-height: 130%;
+    font-size: 18px;
+}
+
+.caption-text {
+    line-height: 130%;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.small-text {
+    line-height: 130%;
+    font-size: 12px;
+}
+
+/* Box text */
+.box-text {
+    text-align: justify;
+}
+
+.box-header {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    color: #000000;
+}
+
+ul.datenschutz {
+    padding-left: 30px;
+}
+
+ul.indented {
+    padding-left: 30px;
+}
+
+a {
+    color: #000000;
+}

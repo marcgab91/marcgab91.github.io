@@ -1,0 +1,12 @@
+:root {
+  --plyr-color-main: #333333; /* your desired grey */
+}
+
+.plyr--audio .plyr__controls button svg {
+  color: #333333;
+}
+
+.plyr--audio .plyr__controls button:hover,
+.plyr--audio .plyr__controls button:focus {
+  background: #ededed; /* or any light color you prefer */
+}

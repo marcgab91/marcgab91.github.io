@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/content/img/t-cell_icon.png">
+    <title>Ressources | Immunenotes</title>
+    <link rel="stylesheet" type="text/css" href="/css/styles.css">
+    <link rel="stylesheet" type="text/css" href="/css/fonts.css">
+    <script src="/js/nav.js"></script>
+    <script src="/js/html_loader.js"></script>
+</head>
+
+<body>
+<div id="nav-placeholder"></div>
+
+<main>
+    <div class="page-wrapper mobile-screen">
+        <div class="header-block">
+            <h1>Ressources</h1>
+        </div>
+        <div class="page-block" id="publications-box-mobile">
+            <script>loadHTML("/pages/comp/box_publications.html", "publications-box-mobile");</script>
+        </div>
+        <div class="page-gap"></div>
+        <div class="page-block" id="support-box-mobile">
+            <script>loadHTML("/pages/comp/box_support.html", "support-box-mobile");</script>
+        </div>
+        <div class="page-gap"></div>
+        <div class="page-block" id="voicenotes-box-mobile">
+            <script>loadHTML("/pages/comp/box_voicenotes.html", "voicenotes-box-mobile");</script>
+        </div>
+    </div>
+
+    <div class="page-wrapper wide-screen">
+        <div class="header-block">
+            <h1>Ressources</h1>
+        </div>
+        <div class="box-wrapper">
+            <div class="box-column">
+                <div id="box-element-11"></div>
+                <script>loadHTML("/pages/comp/box_publications.html", "box-element-11");</script>
+                <div class="page-gap"></div>
+                <div id="box-element-12"></div>
+                <script>loadHTML("/pages/comp/box_voicenotes.html", "box-element-12");</script>
+            </div>
+            <div class="box-column">
+                <div id="box-element-21"></div>
+                <script>loadHTML("/pages/comp/box_support.html", "box-element-21");</script>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div class="footer">
+    <div class="page-wrapper">
+        <div class="page-block">
+            <div class="footer-block">
+                <a href="/pages/impressum.html">Impressum</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;   
+                <a href="/pages/datenschutz.html">Datenschutzerklärung</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

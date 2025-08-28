@@ -1,0 +1,121 @@
+# .github/workflows/encrypt-content.yml
+name: Encrypt Protected Content
+
+on:
+  push:
+    branches: [ main ]
+    paths: 
+      - 'protected/**'
+      - '.github/workflows/encrypt-content.yml'
+  workflow_dispatch: # Ermöglicht manuelles Ausführen
+
+jobs:
+  encrypt-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+    
+    - name: Install dependencies
+      run: |
+        npm install crypto-js
+    
+    - name: Create encryption script
+      run: |
+        cat > encrypt.js << 'EOF'
+        const CryptoJS = require('crypto-js');
+        const fs = require('fs');
+        const path = require('path');
+        
+        const password = process.env.ENCRYPTION_PASSWORD;
+        const protectedDir = './protected';
+        const outputDir = './js/encrypted';
+        
+        // Erstelle Output-Verzeichnis
+        if (!fs.existsSync(outputDir)) {
+          fs.mkdirSync(outputDir, { recursive: true });
+        }
+        
+        // Funktion zum Verschlüsseln einer Datei
+        function encryptFile(filePath, relativePath) {
+          const content = fs.readFileSync(filePath, 'utf8');
+          const encrypted = CryptoJS.AES.encrypt(content, password).toString();
+          
+          // Erstelle JavaScript-Datei mit verschlüsseltem Inhalt
+          const jsContent = `
+        // Automatisch generiert - nicht bearbeiten!
+        window.encryptedContent = window.encryptedContent || {};
+        window.encryptedContent['${relativePath}'] = '${encrypted}';
+          `.trim();
+          
+          const outputFile = path.join(outputDir, relativePath.replace(/[\/\\]/g, '_').replace(/\.[^.]*$/, '.js'));
+          fs.writeFileSync(outputFile, jsContent);
+          console.log(`Verschlüsselt: ${relativePath} -> ${outputFile}`);
+        }
+        
+        // Durchsuche protected/ Verzeichnis
+        function processDirectory(dir, baseDir = dir) {
+          const files = fs.readdirSync(dir);
+          
+          files.forEach(file => {
+            const fullPath = path.join(dir, file);
+            const stat = fs.statSync(fullPath);
+            
+            if (stat.isDirectory()) {
+              processDirectory(fullPath, baseDir);
+            } else if (file.endsWith('.html') || file.endsWith('.md')) {
+              const relativePath = path.relative(baseDir, fullPath);
+              encryptFile(fullPath, relativePath);
+            }
+          });
+        }
+        
+        if (fs.existsSync(protectedDir)) {
+          processDirectory(protectedDir);
+          console.log('Verschlüsselung abgeschlossen!');
+        } else {
+          console.log('Kein protected/ Verzeichnis gefunden');
+        }
+        EOF
+    
+    - name: Encrypt protected content
+      env:
+        ENCRYPTION_PASSWORD: ${{ secrets.ENCRYPTION_PASSWORD }}
+      run: node encrypt.js
+    
+    - name: Generate content index
+      run: |
+        cat > js/encrypted/index.js << 'EOF'
+        // Automatisch generierte Inhaltsliste
+        window.protectedPages = [
+        EOF
+        
+        find protected -name "*.html" -o -name "*.md" | while read file; do
+          relative=$(echo "$file" | sed 's|^protected/||')
+          title=$(basename "$file" .html)
+          echo "  { path: '$relative', title: '$title', encrypted: '${relative//\//_}' }," >> js/encrypted/index.js
+        done
+        
+        echo "];" >> js/encrypted/index.js
+    
+    - name: Commit encrypted files
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add js/encrypted/
+        if ! git diff --staged --quiet; then
+          git commit -m "Auto-encrypt protected content [skip ci]"
+          git push
+        else
+          echo "Keine Änderungen zu committen"
+        fi

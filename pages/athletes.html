@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/content/img/t-cell_icon.png">
+    <title>Athletes | Immunenotes</title>
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+    <link rel="stylesheet" type="text/css" href="/css/styles.css">
+    <link rel="stylesheet" type="text/css" href="/css/fonts.css">
+    <script src="/js/nav.js"></script>
+    <script src="/js/html_loader.js"></script>
+    <script src="/js/exp-box.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/slideshow.js"></script>
+    <script src="/js/crypto-js.min.js"></script>
+    <style>
+        .logout-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 8px 15px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .logout-btn:hover {
+            background: #c82333;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+<div id="nav-placeholder"></div>
+
+<main>
+    <div class="page-wrapper">
+        <div class="header-block">
+            <h1>Athletes</h1>
+        </div>
+        <div class="page-block">
+            <div class="auth-container">
+                <input type="password" class="password-input" placeholder="Enter password"/>
+                <button class="login-btn">Login</button>
+                <div class="error-message"></div>
+            </div>
+
+            <div class="locked-content">
+                <button class="logout-btn" onclick="logout()">Log out</button>
+                <div class="loading">Loading protected content …</div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div class="footer">
+    <div class="page-wrapper">
+        <div class="page-block">
+            <div class="footer-block">
+                <a href="/pages/impressum.html">Impressum</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;   
+                <a href="/pages/datenschutz.html">Datenschutzerklärung</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

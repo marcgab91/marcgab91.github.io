@@ -1,0 +1,90 @@
+/* videolist buttons */
+.videolist-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.videolist-button {
+    padding: 10px 20px;
+    background-color: #ffffff; /* old: background-color: #5e7a1d */
+    color: #000000; /* old: color: #ffffff; */
+    font-size: 16px;
+    border: 1px solid #000000; /* old: border: none; */
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.videolist-button:hover {
+    background-color: #ededed; /* old: background-color: #5e7a1d */
+    border-color: #333333; 
+}
+
+.videolist-button:active {
+    transform: scale(0.98);
+}
+
+/* Video previews */
+.video-previews {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 10px 0;
+}
+
+.video-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.video-previews img {
+    cursor: pointer;
+    width: 200px;
+    height: auto;
+    border: 2px solid transparent;
+    transition: border-color 0.3s;
+}
+
+.video-previews img:hover {
+    border-color: #333;
+}
+
+.video-title {
+    margin-top: 5px;
+    font-size: 14px;
+    text-align: center;
+}
+
+/* Custom scrollbar styling */
+.video-previews::-webkit-scrollbar {
+    height: 12px;
+}
+
+.video-previews::-webkit-scrollbar-track {
+    background: #eeeeee;
+    border-radius: 8px;
+}
+
+.video-previews::-webkit-scrollbar-thumb {
+    background: #cdcdcd; /* old: background-color: #7ca32e */
+    border-radius: 8px;
+}
+
+.video-previews::-webkit-scrollbar-thumb:hover {
+    background: #7e7e7e; /* old: background-color: #5e7a1d */
+}
+
+/* Video player */
+.video-player {
+    margin-top: 30px;
+    text-align: center;
+}
+
+/* Embedded video */
+.embedded-video {
+    width: 100%;
+    max-width: 800px;
+    height: 450px;
+    border: none;
+}

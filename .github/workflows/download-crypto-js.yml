@@ -1,0 +1,94 @@
+# .github/workflows/update-crypto.yml
+name: Update CryptoJS Library
+
+on:
+  workflow_dispatch: # Manuell ausführbar
+  schedule:
+    - cron: '0 0 1 */3 *' # Alle 3 Monate prüfen
+
+jobs:
+  update-crypto:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Create lib directory
+      run: mkdir -p js
+    
+    - name: Get latest CryptoJS version
+      id: crypto_version
+      run: |
+        echo "Ermittle neueste CryptoJS Version..."
+        LATEST_VERSION=$(curl -s "https://api.cdnjs.com/libraries/crypto-js" | \
+          grep -o '"version":"[^"]*"' | head -1 | cut -d'"' -f4)
+        echo "Neueste Version: $LATEST_VERSION"
+        echo "version=$LATEST_VERSION" >> $GITHUB_OUTPUT
+    
+    - name: Download CryptoJS
+      run: |
+        VERSION="${{ steps.crypto_version.outputs.version }}"
+        echo "Downloading CryptoJS $VERSION..."
+        curl -L "https://cdnjs.cloudflare.com/ajax/libs/crypto-js/$VERSION/crypto-js.min.js" \
+          -o js/crypto-js.min.js
+        
+        # Prüfe ob Download erfolgreich
+        if [ -f js/crypto-js.min.js ]; then
+          echo "✅ CryptoJS erfolgreich heruntergeladen"
+          echo "Dateigröße: $(du -h js/crypto-js.min.js)"
+        else
+          echo "❌ CryptoJS Download fehlgeschlagen"
+          exit 1
+        fi
+    
+    - name: Verify integrity
+      run: |
+        echo "Überprüfe Datei-Integrität..."
+        
+        # Prüfe ob CryptoJS gültig ist (sollte "CryptoJS" enthalten)
+        if grep -q "CryptoJS" js/crypto-js.min.js; then
+          echo "✅ CryptoJS Integrität OK"
+        else
+          echo "❌ CryptoJS scheint beschädigt zu sein"
+          exit 1
+        fi
+        
+        # Zeige Dateigröße
+        echo "Dateigröße: $(du -h js/crypto-js.min.js)"
+    
+    - name: Create library info file
+      run: |
+        cat > js/README.md << EOF
+        # Lokale CryptoJS-Bibliothek
+        
+        Diese Bibliothek wird lokal gehostet um externe Abhängigkeiten zu vermeiden.
+        
+        ## CryptoJS ${{ steps.crypto_version.outputs.version }}
+        
+        - **Zweck**: Verschlüsselung und Hashing für geschützte Inhalte
+        - **Datei**: \`crypto-js.min.js\`
+        - **Verwendung**: \`<script src="/js/crypto-js.min.js"></script>\`
+        - **Dokumentation**: https://cryptojs.gitbook.io/docs/
+        
+        ## Aktualisierung
+        
+        Die Bibliothek wird automatisch alle 3 Monate über GitHub Actions aktualisiert.
+        Manuelle Aktualisierung: Gehe zu Actions → "Update CryptoJS Library" → "Run workflow"
+        
+        ## Letzte Aktualisierung
+        
+        $(date)
+        EOF
+    
+    - name: Commit changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add js/
+        if ! git diff --staged --quiet; then
+          git commit -m "Update CryptoJS to version ${{ steps.crypto_version.outputs.version }} [skip ci]"
+          git push
+        else
+          echo "No CryptoJS updates needed"
+        fi
