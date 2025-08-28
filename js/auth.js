@@ -1,15 +1,12 @@
-// js/auth.js - Neue Version mit verschlüsselten Inhalten
 document.addEventListener("DOMContentLoaded", () => {
-  sessionStorage.removeItem("auth");
-  sessionStorage.removeItem("auth-password");
-  
-  showLogin();
-  
   const authContainer = document.querySelector(".auth-container");
   const passwordInput = document.querySelector(".password-input");
   const loginBtn = document.querySelector(".login-btn");
   const lockedContent = document.querySelector(".locked-content");
   const errorDiv = document.querySelector(".error-message");
+
+  sessionStorage.removeItem("auth");
+  sessionStorage.removeItem("auth-password");
 
   // Lade verschlüsselte Inhalte
   loadEncryptedContent();
@@ -28,7 +25,6 @@ document.addEventListener("DOMContentLoaded", () => {
     authContainer.style.display = "none";
     lockedContent.style.display = "block";
     
-    // Lade und entschlüssele Inhalte
     displayProtectedContent();
   }
 
@@ -48,7 +44,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function tryDecrypt(encryptedContent, password) {
     try {
-      // Verwende CryptoJS falls verfügbar
       if (typeof CryptoJS !== 'undefined') {
         const decrypted = CryptoJS.AES.decrypt(encryptedContent, password).toString(CryptoJS.enc.Utf8);
         return decrypted && decrypted.length > 0 ? decrypted : null;
@@ -70,21 +65,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     for (const page of window.protectedPages) {
       try {
-        // Lade verschlüsselte Datei
         const response = await fetch(`/js/encrypted/${page.encrypted.replace(/\.[^.]*$/, '.js')}`);
         if (response.ok) {
           const scriptText = await response.text();
-          
-          // Führe Script aus um encryptedContent zu setzen
           eval(scriptText);
           
           const encryptedContent = window.encryptedContent?.[page.path];
           if (encryptedContent) {
             const decrypted = tryDecrypt(encryptedContent, password);
             if (decrypted) {
-              contentHtml += `
-                  <div>${decrypted}</div>
-              `;
+              contentHtml += `<div>${decrypted}</div>`;
             } else {
               contentHtml += `<p>Fehler beim Entschlüsseln von ${page.title}</p>`;
             }
@@ -98,12 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
     lockedContent.innerHTML = contentHtml;
   }
 
-  // Prüfe Session Storage
-  if (sessionStorage.getItem("auth") === "true") {
-    onLoginSuccess();
-  } else {
-    showLogin();
-  }
+  showLogin();
 
   function attemptLogin() {
     const enteredPass = passwordInput.value.trim();
@@ -113,7 +98,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Teste Entschlüsselung mit einem Beispiel-Inhalt
     if (window.protectedPages && window.protectedPages.length > 0) {
       testDecryption(enteredPass).then(isValid => {
         if (isValid) {
@@ -125,7 +109,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     } else {
-      // Fallback wenn keine geschützten Seiten geladen
       showError("Geschützte Inhalte noch nicht geladen. Bitte versuchen Sie es erneut.");
     }
   }
@@ -156,7 +139,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return false;
   }
 
-  // Event Listeners
   loginBtn.addEventListener("click", attemptLogin);
 
   passwordInput.addEventListener("keypress", (e) => {
@@ -165,7 +147,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Logout-Funktion
   window.logout = function() {
     sessionStorage.removeItem("auth");
     sessionStorage.removeItem("auth-password");
