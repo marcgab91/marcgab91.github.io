@@ -41,3 +41,8 @@
     font-weight: bold;
     display: none;
 }
+
+.loading {
+    font-style: italic;
+    color: #000000;
+}
