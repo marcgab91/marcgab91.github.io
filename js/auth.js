@@ -25,6 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
     lockedContent.style.display = "block";
     
     displayProtectedContent();
+    displayProtectedImages();
   }
 
   function showLogin() {
@@ -41,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
     passwordInput.value = "";
   }
 
-  function tryDecrypt(encryptedContent, password) {
+  function tryDecryptText(encryptedContent, password) {
     try {
       if (typeof CryptoJS !== 'undefined') {
         const decrypted = CryptoJS.AES.decrypt(encryptedContent, password).toString(CryptoJS.enc.Utf8);
@@ -49,6 +50,24 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } catch (e) {
       console.error('Entschlüsselungsfehler:', e);
+    }
+    return null;
+  }
+
+  function tryDecryptBinary(encryptedContent, password) {
+    try {
+      if (typeof CryptoJS !== 'undefined') {
+        const decrypted = CryptoJS.AES.decrypt(encryptedContent, password);
+        const typedArray = Uint8Array.from(decrypted.words.map(w => [
+          (w >> 24) & 0xff,
+          (w >> 16) & 0xff,
+          (w >> 8) & 0xff,
+          w & 0xff
+        ]).flat());
+        return typedArray;
+      }
+    } catch (e) {
+      console.error('Fehler beim Entschlüsseln von Binärdateien:', e);
     }
     return null;
   }
@@ -71,7 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
           
           const encryptedContent = window.encryptedContent?.[page.path];
           if (encryptedContent) {
-            const decrypted = tryDecrypt(encryptedContent, password);
+            const decrypted = tryDecryptText(encryptedContent, password);
             if (decrypted) {
               contentHtml += `<div>${decrypted}</div>`;
             } else {
@@ -85,6 +104,28 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     lockedContent.innerHTML = contentHtml;
+  }
+
+  // Neue Funktion: Alle verschlüsselten Bilder dynamisch laden
+  async function displayProtectedImages() {
+    const password = sessionStorage.getItem('auth-password');
+    if (!window.encryptedContent) return;
+
+    const imgElements = document.querySelectorAll('img[data-protected]');
+    for (const img of imgElements) {
+      const fileKey = img.getAttribute('data-protected'); // z.B. "content/athletes/meinBild.png"
+      const encrypted = window.encryptedContent[fileKey];
+      if (encrypted) {
+        const bytes = tryDecryptBinary(encrypted, password);
+        if (bytes) {
+          const blob = new Blob([bytes], { type: 'image/png' });
+          const url = URL.createObjectURL(blob);
+          img.src = url;
+        } else {
+          console.error('Fehler beim Entschlüsseln von Bild:', fileKey);
+        }
+      }
+    }
   }
 
   const storedPass = sessionStorage.getItem("auth-password");
@@ -132,7 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
         
         const encryptedContent = window.encryptedContent?.[firstPage.path];
         if (encryptedContent) {
-          const decrypted = tryDecrypt(encryptedContent, password);
+          const decrypted = tryDecryptText(encryptedContent, password);
           return decrypted && decrypted.length > 0;
         }
       }
